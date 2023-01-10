@@ -1,0 +1,92 @@
+[
+{
+	"uri": "/vi/1-introduce/",
+	"title": "Giới thiệu",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan Theo mặc định, các VPC bên trong AWS Cloud là tách biệt và không thể giao tiếp trực tiếp với nhau. Ở bài thực hành này, bạn sẽ tiến hành thiết lập kết nối VPC Peering giữa hai VPC để các tài nguyên bên trong hai VPC đó có thể liên lạc trực tiếp với nhau. Nhờ vậy, các giao tiếp giữa hai VPC không cần phải thông qua Internet công cộng nữa, góp phần gia tăng tính bảo mật cho VPC.\nBạn sẽ tạo ra kiến trúc cho bài thực hành như sau:\nVPC Peering Connection Kết nối VPC Peering là một kết nối mạng giữa 2 VPC cho phép bạn định tuyến traffic giữa chúng sử dụng địa chỉ private IPv4 hoặc IPv6. Những instance ở trong 1 trong 2 VPC có thể giao tiếp với nhau như chúng đang nằm cùng 1 mạng.\nNetwork Access Control List (Network ACL) Bạn đã thực hành nhiều với Security Group - một dạng stateful firewall ở quy mô tài nguyên (resource-level). Trong bài này, bạn sẽ sử dụng Network ACL - một dạng statelesss firewall ở quy mô subnet (subnet-level). Cụ thể, Network ACL chỉ có thể được gán vào subnet chứ không thể gán vào từng Instance bên trong subnet.\nCross-Peering DNS Cross-Peering DNS là một tính năng của VPC Peering cho phép các tài nguyên bên trong một VPC phân giải DNS của một tài nguyên khác VPC.\nQuy ước: VPC default = VPC 1; HG VPC = VPC 2.\n\r"
+},
+{
+	"uri": "/vi/2-prerequiste/2.1-launchcloudformation/",
+	"title": "Khởi tạo CloudFormation Template",
+	"tags": [],
+	"description": "",
+	"content": "Khởi tạo CloudFormatuon Templates Bước này sẽ hướng dẫn chi tiết cách tạo My VPC bằng CloudFormation Template. Bạn có thể lặp lại bước này để tạo thêm HG VPC. Một stack có thể cần tới 5 phút để hoàn tất khởi tạo.\n  Cách 1: Trước hết chúng ta tải CloudFormation Template về máy.\n  Cách 2: Bạn có thể tải Template\n    Đăng nhập vào AWS Management Console\n Tìm CloudFormation Chọn CloudFormation    Trong giao diện CloudFormation, chọn Stack  Trong giao diện Stack, chọn Create stack  Trong trang Create stack chọn các thông số sau và chọn Next:  Prerequisite - Prepare template:  Prerequisite template: Template is ready   Specify template:  Template source*: Upload a template file Chọn Choose file rồi chọn tập tin VPCTempalte.yaml vừa được tạo từ trước.   Chọn Next    Trong trang Specify stack details, bạn sẽ nhập các thông số được yêu cầu trong VPCTempalte.yaml như sau:  Stack name:  Stack name: My-VPC-Stack   Parameters:  EnvironmentName: My VPC PrivateSubnet1CIDR: 172.31.3.0/24 PrivateSubnet2CIDR: 172.31.4.0/24 PublicSubnet1CIDR: 172.31.1.0/24 PublicSubnet2CIDR: 172.31.2.0/24 VpcCIDR: 172.31.0.0/16   Kiểm tra và chọn Next    Tại trang Configure stack options, chọn Next  Tại trang Review, kiểm tra và chọn Create stack ở cuối trang.  Đợi 10 phút sau, Stack tạo thành công.  Xem Ouput của Stack vừa tạo.  Thực hiện các bước lặp lại để tạo HG VPC   Ở thanh bên trái, chọn Stacks. Sau đó, chọn Create stack và chọn With new resources (standard).  Trong trang Create stack chọn các thông số sau và chọn Next:  Prerequisite - Prepare template: Prerequisite template: Template is ready Specify template: Template source: Upload a template file Chọn Choose file rồi chọn tập tin VPCTempalte.yaml vừa được tạo từ trước.     Stack name:\n Stack name: HG-VPC-Stack Parameters:  EnvironmentName: HG VPC PrivateSubnet1CIDR: 10.10.3.0/24 PrivateSubnet2CIDR: 10.10.4.0/24 PublicSubnet1CIDR: 10.10.1.0/24 PublicSubnet2CIDR: 10.10.2.0/24 VpcCIDR: 10.10.0.0/16      Tại trang Configure stack options, chọn Next  Tại trang Review, kiểm tra và chọn Create stack ở cuối trang. Đợi 10 phút sau hoàn thành tạo stack.  Xem Output stack vừa tạo.  "
+},
+{
+	"uri": "/vi/",
+	"title": "Thiết lập VPC Peering",
+	"tags": [],
+	"description": "",
+	"content": "Thiết lập VPC Peering Tổng quan Theo mặc định, các VPC bên trong AWS Cloud là tách biệt và không thể giao tiếp trực tiếp với nhau. Ở bài thực hành này, bạn sẽ tiến hành thiết lập kết nối VPC Peering giữa hai VPC để các tài nguyên bên trong hai VPC đó có thể liên lạc trực tiếp với nhau. Nhờ vậy, các giao tiếp giữa hai VPC không cần phải thông qua Internet công cộng nữa, góp phần gia tăng tính bảo mật cho VPC.\nBạn sẽ tạo ra kiến trúc cho bài thực hành như sau:\nVPC Peering Connection Kết nối VPC Peering là một kết nối mạng giữa 2 VPC cho phép bạn định tuyến traffic giữa chúng sử dụng địa chỉ private IPv4 hoặc IPv6. Những instance ở trong 1 trong 2 VPC có thể giao tiếp với nhau như chúng đang nằm cùng 1 mạng.\nNetwork Access Control List (Network ACL) Bạn đã thực hành nhiều với Security Group - một dạng stateful firewall ở quy mô tài nguyên (resource-level). Trong bài này, bạn sẽ sử dụng Network ACL - một dạng statelesss firewall ở quy mô subnet (subnet-level). Cụ thể, Network ACL chỉ có thể được gán vào subnet chứ không thể gán vào từng Instance bên trong subnet.\nCross-Peering DNS Cross-Peering DNS là một tính năng của VPC Peering cho phép các tài nguyên bên trong một VPC phân giải DNS của một tài nguyên khác VPC.\nQuy ước: VPC default = VPC 1; HG VPC = VPC 2.\n\rNội dung  Giới thiệu Chuẩn bị Cập nhật Network ACL Tạo kết nối Peering Tạo Route tables Giải pháp Cross-Peer DNS  "
+},
+{
+	"uri": "/vi/2-prerequiste/",
+	"title": "Các bước chuẩn bị",
+	"tags": [],
+	"description": "",
+	"content": "Các bước chuẩn bị Ở phần này, bạn sẽ sử dụng CloudFormation Template để tạo hạ tầng mạng có kết nối với Intenrnet một cách thuận tiện rồi sau đó tạo thêm hai máy ảo ở hai public subnet của hai VPC.\nNội dung  Khởi tạo CloudFormation Tạo Security Group Tạo EC2 instance  "
+},
+{
+	"uri": "/vi/2-prerequiste/2.2-createsecuritygroup/",
+	"title": "Tạo Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Security Group Bước này sẽ hướng dẫn chi tiết cách tạo My VPC SG bằng CloudFormation Template. Bạn có thể lặp lại bước này để tạo thêm HG VPC SG.\nĐể xác định các rule Inbound cần có, bạn liệt kê ra các yêu cầu như sau:\nBạn có thể kết nối SSH vào EC2 instance với source là IP của bạn.\n Hai EC2 instance ở hai VPC có thể được ping thông qua giao thức ICMP - IPv4 với source là Anywhere. Hai EC2 instance ở hai VPC có thể ping nhau bằng giao thức ICMP - IPv4 với source là CIDR của VPC còn lại.   Truy cập vào AWS Management Console. Lựa chọn Services ở thanh điều hướng và tìm kiếm dịch vụ VPC.   Trong giao diện VPC\n Ở thanh điều hướng bên trái, chọn Security Groups. Ở trang Security Groups, chọn Create Security Group.    Ở trang Create security group, thiết lập các thông số như sau:  Mục Basic details:  Security group name: Nhập vào tên security group (VD: MY VPC SG) Description: Nhập vào diễn giải của security group. VPC: Chọn My VPC      Mục Inbound rules: Thêm các Inbound rule như đề cập ở trên. Chọn Add rule để thêm một rule.  Type: SSH | Source: My IP Type: All ICMP - IPv4 | Source: Anywhere Type: All ICMP - IPv4 | Source: Custom 10.10.0.0/16 (CIDR của HG VPC)    Chọn Create security group.  Tạo Security Group thành công.   Lặp lại các bước để tạo HG VPC SG như sau:\n Mục Basic details:  Security group name: Nhập vào tên security group (VD: HG VPC SG) Description: Nhập vào diễn giải của security group. VPC: Chọn HG VPC      Mục Inbound rules: Thêm các Inbound rule như đề cập ở trên. Chọn Add rule để thêm một rule.  Type: SSH | Source: My IP Type: All ICMP - IPv4 | Source: Anywhere Type: All ICMP - IPv4 | Source: Custom 172.31.0.0/16 (CIDR của My VPC)    Chọn Create security group.  Tạo Security group thành công.  "
+},
+{
+	"uri": "/vi/3-updatenetworkacl/",
+	"title": "Cập nhật Network ACL",
+	"tags": [],
+	"description": "",
+	"content": "Cập nhật Network ACL   Truy cập vào AWS Management Console\n Tìm VPC Chọn VPC    Đi đến VPC Management Console và chọn Network ACLs ở thanh bên trái.  Tick vào Network ACL đang được gán với các subnet của HG VPC. Tiếp theo, nhấn chọn tab Inbound Rules ở dưới màn hình, và nhấn Edit inbound rules.    Chúng ta sẽ thay đổi Rule number 100. Dưới Source đổi 0.0.0.0/0 thành 172.31.0.0/16 và nhấn Save changes.  Như vậy, bạn đã thu nhỏ khoảng địa chỉ IP có thể kết nối tới các subnet của HG VPC. Bây giờ, chỉ các địa chỉ IP trong block 172.31.0.0/16 (CIDR của My VPC) mới có thể kết nối tới các subnet của HG VPC.  Trở lại terminal, thử ping địa chỉ public Ip của EC2 - HG VPC lần nữa. Bạn sẽ thấy ping thất bại vì kết nối từ Internet tới HG VPC đã bị giới hạn bởi Network ACL vừa được cập nhật.  "
+},
+{
+	"uri": "/vi/2-prerequiste/2.3-createec2/",
+	"title": "Tạo EC2 instance",
+	"tags": [],
+	"description": "",
+	"content": "Tạo EC2 instance Ở bước này, bạn sẽ tạo hai máy ảo ở hai Public Subnet 2 của hai VPC. Bài thực hành này sẽ giả định rằng bạn đã quen thuộc với quy trình khởi tạo EC2, nên những hướng dẫn dưới đây sẽ rất ngắn gọn. Nếu bạn vẫn chưa làm quen với quy trình khởi tạo EC2, hãy tham khảo bài lab KHỞI TẠO MÁY ẢO EC2.\n Truy cập vào EC2 Management Console bằng cách gõ EC2 vào thanh tìm kiếm.   Trong giao diện EC2\n Chọn Instances Chọn Launch instances     Thực hiện cấu hình EC2\n Name, nhập EC2 - My VPC Choose AMI: Amazon Linux 2 AMI (HVM), SSD Volume Type     Choose Instance type: t2.micro\n Chọn Create new key pair     Trong giao diện Create key pair\n Key pair name, nhập vpcpeering-key Key pair type, chọn RSA Private key file format, chọn .pem Chọn Create key pair    Thực hiện cấu hình Network  Network: My VPC Subnet: My VPC Public Subnet (AZ2) Auto-assign Public IP: Enable Security group, chọn My VPC SG Sau đó chọn Launch instance Chọn View all instance để xem thông tin instance    Xem thông tin chi tiết instance vừa tạo.  Tiếp tục khởi tạo thêm instance nữa bằng cách chọn Launch instances.   Thực hiện cấu hình instance\n  Name, nhập EC2 - HG VPC\n  Choose AMI: Amazon Linux 2 AMI (HVM), SSD Volume Type\n     Choose Instance type: t2.micro\n Chọn Key pair đã tạo.     Thực hiện cấu hình Network\n VPC: HG VPC Subnet: HG VPC Public Subnet (AZ2) Auto-assign Public IP: Enable Security group, chọn HG VPC SG Chọn Launch instance    Tạo instance thành công, chọn View all instance  Xem thông tin chi tiết instance vừa tạo.  Bây giờ, bạn hãy thử kết nối SSH tới EC2 - My VPC và ping địa chỉ IP Public của EC2 - HG VPC. Bạn sẽ thấy ping thành công do hai instance đang giao tiếp với nhau qua Public Internet.  Giữ nguyên kết nối SSH tới EC2 - My VPC, giờ bạn hãy thử ping địa chỉ IP Private của EC2 - HG VPC. Bạn sẽ thấy ping không thành công do hai VPC là tách biệt và chưa có kết nối với nhau.  "
+},
+{
+	"uri": "/vi/4-vpcpeering/",
+	"title": "Tạo kết nối Peering",
+	"tags": [],
+	"description": "",
+	"content": "Tạo kết nối Peering Ở phần nảy, bạn sẽ tạo kết nối VPC Peering (VPC Peering Connection) giữa My VPC và HG VPC.\n  Đăng nhập vào AWS Management Console\n Tìm VPC Chọn VPC    Ở VPC Management Console*, điều hướng đến Peering Connections. Sau đó, nhấn chọn Create Peering Connection.  Ở trang Create Peering Connection, nhập các thông số như sau rồi chọn Create Peering Connection:  Peering connection name tag: lab-vpc-peer VPC (Requester): chọn My VPC     Đối với Select another VPC to peer with\n Account: chọn My account vì 2 VPC trong peering connection nằm trong cùng một account Region: chọn This region (ap-southeast-1) vì 2 VPC trong peering connection ở cùng một region. VPC (Accepter): HG VPC    Hoàn thành Create Peering Connection  Về trang thông tin của Peering Connections, tick VPC Peering vừa tạo sau đó nhấn Actions và Accept Request.  Chọn Accept request  Thiết lập thành công.  Từ EC2 - My VPC, hãy thử ping private IP của EC2 - HG VPC. Ping vẫn thất bại bởi vì chúng ta chưa cấu hình VPC router để định tuyến traffic giữa 2 VPC.  "
+},
+{
+	"uri": "/vi/5-routetable/",
+	"title": "Cấu hình Route tables",
+	"tags": [],
+	"description": "",
+	"content": "Cấu hình Route tables   Đăng nhập AWS Management Console\n Tìm VPC Chọn VPC    Truy cập vào VPC Management Console, chọn Route tables ở thanh bên trái.  Tick vào route table My VPC Pubilc Routes, chọn tab Routes ở màn hình bên dưới và chọn Edit routes  Chọn Add route. Dưới cột Destination, nhập 10.10.0.0/16. Dưới cột Target, chọn Peering connection mà ta đã tạo.  Nhấn Save changes. Như vậy, bạn đã điều hướng các query cho block 10.10.0.0/16 (CIDR của HG VPC) đi tới Peering connection mà bạn đã tạo  Lặp lại thêm peering connection cho route table HG VPC Public Routes.  Dưới cột Destination, nhập 172.31.0.0/16. Dưới cột Target, chọn VPC Peering mà ta đã tạo.  Hoàn thành khởi tạo.  Từ EC2 - My VPC, hãy thử ping private IP của EC2 - HG VPC. Bây giờ chúng ta đã thành công.  Tuy nhiên, khi thử ping public DNS của EC2 - HG VPC, bạn sẽ thất bại vì chúng ta đã cập nhật Network ACL cho các subnet của HG VPC ngăn chặn hoạt động ping từ Internet. Ở phần tiếp theo, bạn sẽ kích Cross-Peer DNS để khắc phục sự cố này.  Tới đây, chúng ta đã hoàn thành kiến trúc bài lab đề ra:  "
+},
+{
+	"uri": "/vi/6-crosspeerdns/",
+	"title": "Kích hoạt Cross-Peer DNS",
+	"tags": [],
+	"description": "",
+	"content": "Kích hoạt Cross-Peer DNS Ở phần này, bạn sẽ kích hoạt tính năng Cross-peering DNS để cho phép EC2 - My VPC truy vấn public DNS của EC2 - HG VPC và trả về địa chỉ IP private của VPC EC2- HG VPC và kết nối khi đó sẽ đi qua mạng nội bộ của AWS.\nNếu tính năng này không được kích hoạt thì kết nối giữa các EC2 instance của EC2 - My VPC khi truy vấn public DNS của EC2 - HC VPC sẽ trả về địa chỉ IP public và kết nối lúc đó sẽ đi qua đường internet.\n\r Quay trở lại VPC Management Console   Chọn Peering Connections ở thanh bên trái.\n Sau đó, tick vào VPC peering connection giữa 2 VPC chúng ta đã tạo. Chọn Actions Chọn Edit DNS settings    Trong trang Edit DNS Settings, tick vào hai box bên cạnh Requester DNS resolution và Accepter DNS resolution.  Nhấn Save sau đó Close. Việc này sẽ cần vài phút để thực thi.  Từ EC2 - My VPC, hãy thử ping Public DNS của EC2 - HG VPC, chúng ta sẽ ping thành công.  "
+},
+{
+	"uri": "/vi/7-cleanup/",
+	"title": "Dọn dẹp tài nguyên",
+	"tags": [],
+	"description": "",
+	"content": "Dọn dẹp tài nguyên Rất tuyệt vời!!! Chúc mừng các bạn đã vượt qua bài lab này. Hãy cùng dọn dẹp tài nguyên để tránh phát sinh chi phí cho tài khoản AWS của bạn nhé.\nXóa EC2 instnace  Truy cập EC2 Management Console Trên thanh điều hướng bên trái, chọn Intances Chọn tất cả EC2 Instance liên quan tới bài lab. Click Actions. Click Manage Instance State. Chọn Terminate. Click Change State  Xóa VPC Peering Connection  Truy cập VPC Management Console Trên thanh điều hướng bên trái, chọn Peering Connections Tick vào VPC Peering Conenction liên quan tới bài lab. Click Actions. Chọn Delete VPC Peering Conenction Trong prompt, tick vào Delete related route table entries. Chọn Yes, Delete.  Xóa Security Group  Truy cập EC2 Management Console Trên thanh điều hướng bên trái, chọn Security Groups Chọn tất cả Security Groups liên quan tới bài lab. Click Actions. Click Delete security groups Click Delete  Xóa CloudFormation Stack  Truy cập vào CloudFormation Management Console Ở thanh bên trái, chọn Stacks. Lần lượt tick các vào CloudFormation Stack liên quan tới bài lab và chọn Delete. Trong prompt, chọn Delete stack. Đọi vài phút cho tới khi CloudFormation xóa bỏ hết tài nguyên.  "
+},
+{
+	"uri": "/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]

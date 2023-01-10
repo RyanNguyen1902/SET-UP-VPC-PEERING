@@ -1,0 +1,92 @@
+[
+{
+	"uri": "/2-prerequiste/2.1-launchcloudformation/",
+	"title": "Initialize CloudFormation Template",
+	"tags": [],
+	"description": "",
+	"content": "Initialize CloudFormatuon Templates This step will detail how to create My VPC with CloudFormation Template. You can repeat this step to create more HG VPCs. A stack can take up to 5 minutes to complete initialization.\n  Method 1: First of all, we download CloudFormation Template to the computer.\n  Method 2: You can download Template\n    Login to AWS Management Console\n Find CloudFormation Select CloudFormation    In the CloudFormation interface, select Stack  In the Stack interface, select Create stack  In the Create stack page select the following parameters and select Next:  Prerequisite - Prepare template:  Prerequisite template: Template is ready   Specify template:  Template source*: Upload a template file Select Choose file and then select the VPCTempalte.yaml file that has just been created.   Select Next    In the Specify stack details page, you will enter the required parameters in VPCTempalte.yaml as follows:  Stack name:  Stack name: My-VPC-Stack   Parameters:  EnvironmentName: My VPC PrivateSubnet1CIDR: 172.31.3.0/24 PrivateSubnet2CIDR: 172.31.4.0/24 PublicSubnet1CIDR: 172.31.1.0/24 PublicSubnet2CIDR: 172.31.2.0/24 VpcCIDR: 172.31.0.0/16   Check and select Next    On the Configure stack options page, select Next  On the Review page, check and select Create stack at the bottom of the page.  Wait 10 minutes, Stack created successfully.  View Output of the newly created Stack.  Repeat steps to create HG VPC   In the left sidebar, select Stacks. Then select Create stack and select With new resources (standard).  In the Create stack page select the following parameters and select Next:  Prerequisite - Prepare template: Prerequisite template: Template is ready Specify template: Template source: Upload a template file Select Choose file and then select the VPCTempalte.yaml file that has just been created.     Stack name:\n Stack name: HG-VPC-Stack Parameters:  EnvironmentName: HG VPC PrivateSubnet1CIDR: 10.10.3.0/24 PrivateSubnet2CIDR: 10.10.4.0/24 PublicSubnet1CIDR: 10.10.1.0/24 PublicSubnet2CIDR: 10.10.2.0/24 VpcCIDR: 10.10.0.0/16      On the Configure stack options page, select Next  On the Review page, check and select Create stack at the bottom of the page. Wait 10 minutes after completing the stack creation.  View Output stack just created.  "
+},
+{
+	"uri": "/1-introduce/",
+	"title": "Introduction",
+	"tags": [],
+	"description": "",
+	"content": "Overview By default, VPCs inside AWS Cloud are separate and cannot communicate directly with each other. In this exercise, you will proceed to establish a VPC Peering connection between two VPCs so that the resources inside those two VPCs can communicate directly with each other. As a result, the communication between the two VPCs does not need to go through the public Internet anymore, contributing to increasing the security of the VPC.\nYou will create the following architecture for the exercise:\nVPC Peering Connection A VPC Peering connection is a network connection between two VPCs that allows you to route traffic between them using IPv4 or IPv6 private addresses. Instances in either VPC can communicate with each other as if they were on the same network.\nNetwork Access Control List (Network ACL) You\u0026rsquo;ve done a lot of practice with Security Group - a kind of stateful firewall at resource-level. In this article, you will use Network ACL - a type of stateless firewall at the subnet-level. Specifically, Network ACLs can only be assigned to the subnet, but not to each Instance within the subnet.\nCross-Peering DNS Cross-Peering DNS is a feature of VPC Peering that allows resources within one VPC to resolve the DNS of another VPC.\nConvention: VPC default = VPC 1; HG VPC = VPC 2.\n\r"
+},
+{
+	"uri": "/",
+	"title": "Setting up VPC Peering",
+	"tags": [],
+	"description": "",
+	"content": "Set up VPC Peering Overview By default, VPCs inside AWS Cloud are separate and cannot communicate directly with each other. In this exercise, you will proceed to establish a VPC Peering connection between two VPCs so that the resources inside those two VPCs can communicate directly with each other. As a result, the communication between the two VPCs does not need to go through the public Internet anymore, contributing to increasing the security of the VPC.\nYou will create the following architecture for the exercise:\nVPC Peering Connection A VPC Peering connection is a network connection between two VPCs that allows you to route traffic between them using IPv4 or IPv6 private addresses. Instances in either VPC can communicate with each other as if they were on the same network.\nNetwork Access Control List (Network ACL) You\u0026rsquo;ve had a lot of practice with Security Groups - a kind of stateful firewall at the resource level. In this article, you will use Network ACL - a form of the stateless firewall at the subnet level (subnet-level). Specifically, Network ACLs can only be assigned to the subnet, but not to each Instance within the subnet.\nCross-Peering DNS Cross-Peering DNS is a feature of VPC Peering that allows resources within one VPC to resolve the DNS of another VPC resource.\nConvention: VPC default = VPC 1; HG VPC = VPC 2.\n\rContent  Introduction Preparation Update Network ACL Create Peering Connection Create Route tables Cross-Peer DNS Solution  "
+},
+{
+	"uri": "/2-prerequiste/2.2-createsecuritygroup/",
+	"title": "Create Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Create Security Group This step will detail how to create My VPC SG using CloudFormation Template. You can repeat this step to create more HG VPC SG.\nTo determine which Inbound rules are required, list the requirements as follows:\nYou can connect SSH to your EC2 instance with the source as your IP.\n Two EC2 instances in two VPCs can be pinged via the ICMP - IPv4 protocol with the source being Anywhere. Two EC2 instances in two VPCs can ping each other using the ICMP - IPv4 protocol with the source being the CIDR of the other VPC.   Access the AWS Management Console. Select Services in the navigation bar and search for VPC service.   In the VPC interface\n In the left navigation bar, select Security Groups. On the Security Groups page, select Create Security Group.    On the Create security group page, set the following parameters:  Section Basic details:  Security group name: Enter the security group name (eg: MY VPC SG) Description: Enter the description of the security group. VPC: Select My VPC      Inbound rules section: Add Inbound rules as mentioned above. Select Add rule to add a rule.  Type: SSH | Source: My IP Type: All ICMP - IPv4 | Source: Anywhere Type: All ICMP - IPv4 | Source: Custom 10.10.0.0/16 (HG VPC\u0026rsquo;s CIDR)    Select Create security group.  Create Security Group successfully.   Repeat the steps to create HG VPC SG as follows:\n Section Basic details:  Security group name: Enter the security group name (eg HG VPC SG) Description: Enter the description of the security group. VPC: Select HG VPC      Section Inbound rules: Add Inbound rules as mentioned above. Select Add rule to add a rule.  Type: SSH | Source: My IP Type: All ICMP - IPv4 | Source: Anywhere Type: All ICMP - IPv4 | Source: Custom 172.31.0.0/16 (My VPC\u0026rsquo;s CIDR)    Select Create security group.  Create Security group successfully.  "
+},
+{
+	"uri": "/2-prerequiste/",
+	"title": "Preparation ",
+	"tags": [],
+	"description": "",
+	"content": "Preparation In this section, you will use CloudFormation Template to create a convenient network infrastructure that connects to the Internet and then create two more virtual machines in two public subnets of the two VPCs.\nContent  Initialize CloudFormation Create Security Group Create EC2 instance  "
+},
+{
+	"uri": "/2-prerequiste/2.3-createec2/",
+	"title": "Create EC2 instance",
+	"tags": [],
+	"description": "",
+	"content": "Create EC2 instance In this step, you will create two virtual machines in two Public Subnet 2 of two VPC. This exercise will assume that you are familiar with the EC2 initialization process, so the instructions below will be very brief. If you are still not familiar with the EC2 initialization process, refer to the lab Initialize EC2 VMs.\n Access the EC2 Management Console by typing EC2 in the search bar.   In the EC2 interface\n Select Instances Select Launch instances     Perform configuration EC2\n Name, enter EC2 - My VPC Choose AMI: Amazon Linux 2 AMI (HVM), SSD Volume Type     Choose Instance type: t2.micro\n Select Create new key pair     In the Create key pair interface\n Key pair name, enter vpcpeering-key Key pair type, select RSA Private key file format, select .pem Select Create key pair    Configure Network  Network: My VPC Subnet: My VPC Public Subnet (AZ2) Auto-assign Public IP: Enable Security group, select My VPC SG Then select Launch instance Select View all instance to view information instance    View details instance just created.  Continue to initialize more instance by selecting Launch instances.   Configure instance\n  Name, enter EC2 - HG VPC\n  Choose AMI: Amazon Linux 2 AMI (HVM), SSD Volume Type\n     Choose Instance type: t2.micro\n Select Key pair created.     Perform configuration Network\n VPC: HG VPC Subnet: HG VPC Public Subnet (AZ2) Auto-assign Public IP: Enable Security group, select HG VPC SG Select Launch instance    Successful instance creation, select View all instance  View the details of the newly created instance.  Now try SSH connection to EC2 - My VPC and ping EC2 - HG VPC\u0026rsquo;s Public IP address. You will see a successful ping because the two instances are communicating with each other over the Public Internet.  Keep SSH connection to EC2 - My VPC, now try pinging EC2 - HG VPC\u0026rsquo;s IP Private address. You will see that the ping failed because the two VPCs are separate and not yet connected.  "
+},
+{
+	"uri": "/3-updatenetworkacl/",
+	"title": "Update Network ACL",
+	"tags": [],
+	"description": "",
+	"content": "Update Network ACL   Go to AWS Management Console\n Find VPC Select VPC    Go to VPC Management Console and select Network ACLs in the left sidebar.  Tick on Network ACL being assigned to the subnets of HG VPC. Next, click the Inbound Rules tab at the bottom of the screen, and click Edit inbound rules.    We will change Rule number 100. Under Source change 0.0.0.0/0 to 172.31.0.0/16 and click Save changes.  Thus, you have reduced the range of IP addresses that can be connected to the subnets of HG VPC. Now, only IP addresses in block 172.31.0.0/16 (My VPC\u0026rsquo;s CIDR) can connect to HG VPC subnets.  Back in the terminal, try pinging EC2 - HG VPC\u0026rsquo;s public IP address again. You will see a ping failure because the connection from the Internet to the HG VPC has been limited by the Network ACL that has just been updated.  "
+},
+{
+	"uri": "/4-vpcpeering/",
+	"title": "Create Peering Connection",
+	"tags": [],
+	"description": "",
+	"content": "Create a peering connection In the bounce, you will create a VPC Peering (VPC Peering Connection) connection between My VPC and HG VPC.\n  Login to AWS Management Console\n Find VPC Select VPC    In VPC Management Console*, navigate to Peering Connections. Then, click Create Peering Connection.  On the Create Peering Connection page, enter the following parameters and then select Create Peering Connection:  Peering connection name tag: lab-vpc-peer VPC (Requester): select My VPC     For Select another VPC to peer with\n Account: choose My account because the 2 VPCs in peering connection are in the same account Region: choose This region (ap-southeast-1) because the 2 VPCs in the peering connection are in the same region. VPC (Accepter): HG VPC    Complete Create Peering Connection  On the information page of Peering Connections, tick VPC Peering just created then click Actions and Accept Request.  Select Accept request  Setup was successful.  From EC2 - My VPC, try pinging private IP of EC2 - HG VPC. Ping still fails because we haven\u0026rsquo;t configured the VPC router to route traffic between the 2 VPCs.  "
+},
+{
+	"uri": "/5-routetable/",
+	"title": "Configuring Route tables",
+	"tags": [],
+	"description": "",
+	"content": "Configure Route tables   Login AWS Management Console\n Find VPC Select VPC    Go to VPC Management Console, and select Route tables in the left sidebar.  Tick the routeing table My VPC Pubilc Routes, select the Routes tab on the screen below, and select Edit routes  Select Add route. Under the Destination column, enter 10.10.0.0/16. Under the Target column, select the Peering connection that we created.  Click Save changes. Thus, you have directed the queries for block 10.10.0.0/16 (HG VPC\u0026rsquo;s CIDR) to Peering connection that you created  Repeat adding a peering connection for route table HG VPC Public Routes.  Under the Destination column, enter 172.31.0.0/16. Under the Target column, select the VPC Peering that we created.  Complete initialization.  From EC2 - My VPC, try pinging private IP of EC2 - HG VPC. Now we have succeeded.  However, when you try to ping public DNS of EC2 - HG VPC, you will fail because we have updated the Network ACL for the HG VPC subnets to prevent pings from the Internet. In the next section, you will click Cross-Peer DNS to fix this problem.  At this point, we have completed the proposed lab architecture:  "
+},
+{
+	"uri": "/6-crosspeerdns/",
+	"title": "Enable Cross-Peer DNS",
+	"tags": [],
+	"description": "",
+	"content": "Enable Cross-Peer DNS In this section, you will enable Cross-peering DNS to allow EC2 - My VPC to query EC2 - HG VPC**\u0026rsquo;s public DNS and return the IP address private of the VPC EC2- HG VPC and the connection will then go through the AWS intranet.\nIf this feature is not enabled, the connection between EC2 instances of EC2 - My VPC when querying EC2\u0026rsquo;s public DNS - HC VPC will return the public IP address and the connection will then go through the Internet.\n\r Return to VPC Management Console   Select Peering Connections in the left sidebar.\n Then, tick VPC peering connection between the 2 VPCs we have created. Select Actions Select Edit DNS settings    In the Edit DNS Settings page, check the two boxes next to Requester DNS resolution and Accepter DNS resolution.  Click Save then Close. This will take a few minutes to execute.  From EC2 - My VPC, try to ping Public DNS of EC2 - HG VPC, and we will ping successfully.  "
+},
+{
+	"uri": "/7-cleanup/",
+	"title": "Clean up resources",
+	"tags": [],
+	"description": "",
+	"content": "Clean up resources Great!!! Congratulations on passing this lab. Let\u0026rsquo;s clean up resources to avoid incurring costs for your AWS account.\nDelete EC2 instance  Access EC2 Management Console On the left navigation bar, select Intances Select all EC2 Instance related to the lab. Click Actions. Click Manage Instance State. Select Terminate. Click Change State  Remove VPC Peering Connection  Access VPC Management Console On the left navigation bar, select Peering Connections Tick on VPC Peering Connection related to the lab. Click Actions. Select Delete VPC Peering Connection In the prompt, tick Delete related route table entries. Select Yes, Delete.  Delete Security Group  Access EC2 Management Console On the left navigation bar, select Security Groups Select all Security Groups related to the lab. Click Actions. Click Delete security groups Click Delete  Clear CloudFormation Stack  Access to CloudFormation Management Console In the left sidebar, select Stacks. In turn, tick the CloudFormation Stack related to the lab and select Delete. In the prompt, select Delete stack. Wait a few minutes until CloudFormation clears all resources.  "
+},
+{
+	"uri": "/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
